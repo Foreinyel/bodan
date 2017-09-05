@@ -20,12 +20,15 @@ from adagu_bodan.model.match_500 import Match500
 
 session = loadSession()
 
-results = session.query(Match500Bifen,Match500).join(Match500).filter(Match500Bifen.comp=='澳门').all()
+# 2016年全年数据作为训练数据
+results = session.query(Match500Bifen, Match500).join(Match500).filter(Match500Bifen.comp == '澳门',
+                                                                       Match500.start_time >= '2016-01-01',
+                                                                       Match500.start_time <= '2016-12-31').all()
 
 try:
-       os.remove('learn_data.csv')
+    os.remove('learn_data.csv')
 except:
-       pass
+    pass
 
 learn_data_file = open('learn_data.csv', 'a')
 
@@ -43,9 +46,9 @@ for bodan in results:
            match500bifen.zero_zero + split_tag + match500bifen.one_one + split_tag + match500bifen.two_two + split_tag + match500bifen.three_three + split_tag + \
            match500bifen.four_four + split_tag
     if int(match500.home_goal) > int(match500.away_goal):
-           result = '1'
+        result = '1'
     else:
-           result = '0'
+        result = '0'
     line += result + '\n'
     lines.append(line)
 

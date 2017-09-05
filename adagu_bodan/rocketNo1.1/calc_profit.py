@@ -18,27 +18,34 @@ session = loadSession()
 
 # 1 找到澳门独赢赔率
 
-# results = session.query(Match500, Match500Ouzhi).join(Match500Ouzhi).filter(Match500.predict_win_no_win == 1,
-#                                                                             Match500Ouzhi.comp == 'Bet365').all()
-results = session.query(Match500).filter(Match500.predict_win_no_win == 1).all()
+results = session.query(Match500, Match500Ouzhi).join(Match500Ouzhi).filter(Match500.predict_win_no_win == 1,
+                                                                            Match500Ouzhi.comp == '金宝博',
+                                                                            Match500.start_time >= '2017-01-01').all()
+# results = session.query(Match500).filter(Match500.predict_win_no_win == 1, Match500.start_time >= '2017-01-01').all()
 
-print '一共有%f场比赛'%(len(results))
+print '一共有%f场比赛' % (len(results))
+
 
 def get_best_ouzhi(match_id):
     ouzhi = session.query(func.max(Match500Ouzhi.win)).filter(Match500Ouzhi.match_id == match_id).first()
     return ouzhi[0]
 
+
+# for result in results:
+#     match = result
+#     ouzhi = get_best_ouzhi(match.id)
+#     session.query(Match500).filter(Match500.id == match.id).update({"ouzhi_odds_aomen": ouzhi})
+
 for result in results:
-    match = result
-    ouzhi = get_best_ouzhi(match.id)
-    session.query(Match500).filter(Match500.id==match.id).update({"ouzhi_odds_aomen":ouzhi})
+    match = result.Match500
+    ouzhi = result.Match500Ouzhi
+    session.query(Match500).filter(Match500.id == match.id).update({"ouzhi_odds_aomen": ouzhi.win})
+
 session.commit()
 
-
-
 # 2 计算利润
-single_bet=10.0
-matches = session.query(Match500).filter(Match500.predict_win_no_win==1).all()
+single_bet = 10.0
+matches = session.query(Match500).filter(Match500.predict_win_no_win == 1).all()
 for match in matches:
     if match.home_goal > match.away_goal:
         if match.ouzhi_odds_aomen is None:

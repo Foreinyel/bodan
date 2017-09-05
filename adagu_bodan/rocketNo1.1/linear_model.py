@@ -73,7 +73,7 @@ print classification_report(y_test,lr_y_predict)
 # print 'Accuracy of LR Classifier:',lr.score(X_test,y_test)
 
 
-#2、对现有数据进行回测 "伪"
+#2、对2017.1.1-2017.4.1区间数据回测
 
 from adagu_bodan.model import loadSession
 from adagu_bodan.model.match_500_bifen import Match500Bifen
@@ -81,8 +81,8 @@ from adagu_bodan.model.match_500 import Match500
 
 session = loadSession()
 
-matches = session.query(Match500Bifen).filter(Match500Bifen.comp=='澳门').all()
-
+matches = session.query(Match500Bifen).join(Match500).filter(Match500Bifen.comp=='澳门',Match500.start_time>='2017-01-01',Match500.start_time<='2017-04-31').all()
+print 'matches:%f'%(len(matches))
 def predict_win_no_win(match):
     x_column_names = column_names[0:25]
     X = np.array([[match.__dict__[name] for name in x_column_names]])
